@@ -1,0 +1,13 @@
+package com.sanjay.sms.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class HomeController {
+
+    @GetMapping("/home")
+    public String homePage() {
+        return "index.html"; // File inside static folder
+    }
+}

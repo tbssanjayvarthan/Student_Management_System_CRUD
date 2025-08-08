@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Management System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    input, select, button {
+      padding: 0.8rem;
+      font-size: 1rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 2rem;
+    }
+
+    th, td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .success {
+      color: green;
+      margin-top: 1rem;
+    }
+
+    .error {
+      color: red;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Student Management System</h1>
+
+    <form id="studentForm">
+      <input type="number" id="id" placeholder="Student ID" required />
+      <input type="text" id="name" placeholder="Name" required />
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="text" id="department" placeholder="Department" required />
+      <button type="submit">Add Student</button>
+    </form>
+
+    <div id="message" class="success"></div>
+
+    <table id="studentTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Department</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Student data will go here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+  const form = document.getElementById('studentForm');
+  const messageDiv = document.getElementById('message');
+  const tableBody = document.querySelector('#studentTable tbody');
+
+  // Submit form
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const student = {
+      id: parseInt(document.getElementById('id').value),
+      name: document.getElementById('name').value,
+      email: document.getElementById('email').value,
+      department: document.getElementById('department').value
+    };
+
+    fetch('http://localhost:8081/api/students', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(student)
+    })
+    .then(response => response.text())
+    .then(data => {
+      messageDiv.textContent = data;
+      messageDiv.className = 'success';
+      form.reset();
+      loadStudents(); // Refresh the list after submission
+    })
+    .catch(error => {
+      messageDiv.textContent = 'Error: ' + error.message;
+      messageDiv.className = 'error';
+    });
+  });
+
+  // Load students into the table
+  function loadStudents() {
+    fetch('http://localhost:8081/api/students')
+      .then(response => response.json())
+      .then(data => {
+        tableBody.innerHTML = '';
+        data.forEach(student => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${student.id}</td>
+            <td>${student.name}</td>
+            <td>${student.email}</td>
+            <td>${student.department}</td>
+          `;
+          tableBody.appendChild(row);
+        });
+      })
+      .catch(error => {
+        console.error('Error loading students:', error);
+      });
+  }
+
+  // Load students on page load
+  window.onload = loadStudents;
+</script>
+
+  </script>
+</body>
+</html>
